@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.realm.plugin)
+ // kotlin 2.0   alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -41,7 +42,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-
+            implementation(libs.ktor.client.logging)
             implementation(libs.koin.core)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screen.model)
