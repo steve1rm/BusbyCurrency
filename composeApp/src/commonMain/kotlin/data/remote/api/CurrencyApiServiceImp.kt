@@ -1,8 +1,10 @@
 package data.remote.api
 
 import domain.CurrencyApiService
+import domain.PreferenceRepository
 import domain.RequestState
 import domain.model.ApiResponseModel
+import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -14,11 +16,11 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.logging.KtorSimpleLogger
-import io.ktor.util.logging.Logger
 import kotlinx.serialization.json.Json
 
-class CurrencyApiServiceImp : CurrencyApiService {
+class CurrencyApiServiceImp(
+    private val preferenceRepository: PreferenceRepository
+) : CurrencyApiService {
 
     companion object {
         const val ENDPOINT = "https://api.currencyapi.com/v3/latest"
@@ -51,11 +53,34 @@ class CurrencyApiServiceImp : CurrencyApiService {
 
     override suspend fun getLatestExchangeRates(): RequestState<List<CurrencyModel>> {
         return try {
+
             val response = httpClient.get(ENDPOINT)
 
             if(response.status.value == 200) {
                 val apiResponse = Json.decodeFromString<ApiResponseModel>(response.body())
-                RequestState.Success(apiResponse.data.values.toList())
+
+                val listOfAvailableCurrencyCode = apiResponse.data.keys
+                    .filter { currencyKey ->
+                        CurrencyCode
+                            .entries
+                            .map { currencyCode ->
+                                currencyCode.name
+                            }
+                            .toSet()
+                            .contains(currencyKey)
+                    }
+
+                val listOfAvailableCurreny = apiResponse.data.values
+                    .filter { currencyModel ->
+                        listOfAvailableCurrencyCode.contains(currencyModel.code)
+                    }
+
+                val lastUpdated = apiResponse.meta.lastUpdatedAt
+
+                /** Persist the time stamp form the BE */
+                preferenceRepository.saveLastUpdated(lastUpdated)
+
+                RequestState.Success(data = listOfAvailableCurreny)
             }
             else {
                 RequestState.Failure(message = "HTTP Error Code: ${response.status}")

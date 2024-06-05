@@ -99,6 +99,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.12"
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
     dependencies {
         debugImplementation(compose.uiTooling)
     }
