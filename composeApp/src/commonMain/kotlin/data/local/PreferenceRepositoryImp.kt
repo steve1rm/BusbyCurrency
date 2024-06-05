@@ -8,6 +8,10 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import domain.PreferenceRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -23,32 +27,65 @@ class PreferenceRepositoryImp(
     private val flowSettings: FlowSettings = (settings as ObservableSettings).toFlowSettings()
 
     override suspend fun saveLastUpdated(lastUpdated: String) {
+        val timeStampFromEndPoint = Instant.parse(lastUpdated).toEpochMilliseconds()
+
         flowSettings.putLong(
             key = TIME_STAMP_KEY,
-            value = Instant.parse(lastUpdated).toEpochMilliseconds())
+            value = timeStampFromEndPoint)
+
+        val currentTimestamp = Clock.System.now().toEpochMilliseconds()
+        val isDataStillFresh = isCurrencyDataFresh(timeStampFromEndPoint, currentTimestamp)
+        channel.send(isDataStillFresh)
+
+        delay(2_000L)
+        println("###### SEND")
+        channel.send(false)
+
+        delay(2_000L)
+        println("###### SEND")
+        channel.send(true)
+
+        delay(2_000L)
+        println("###### SEND")
+        channel.send(false)
+
+        delay(2_000L)
+        println("###### SEND")
+        channel.send(true)
+
+        delay(2_000L)
+        println("###### SEND")
+        channel.send(false)
     }
 
-    override suspend fun isDataFresh(currentTimeStamp: Long): Boolean {
-        val savedTimeStamp = flowSettings.getLong(
+    private val channel = Channel<Boolean>()
+    override val eventChannel = channel.receiveAsFlow()
+
+    override suspend fun isDataFresh(currentTimestamp: Long): Boolean {
+        val savedTimestamp = flowSettings.getLong(
             key = TIME_STAMP_KEY,
-            defaultValue = 0L)
+            defaultValue = 0L
+        )
 
-        return if(savedTimeStamp != 0L) {
-            val currentInstant = Instant.fromEpochMilliseconds(currentTimeStamp)
-            val savedInstant = Instant.fromEpochMilliseconds(savedTimeStamp)
+        return isCurrencyDataFresh(savedTimestamp, currentTimestamp)
+    }
 
-            val currentDateTime = currentInstant.toLocalDateTime(TimeZone.currentSystemDefault())
-            val savedDateTime = savedInstant.toLocalDateTime(TimeZone.currentSystemDefault())
+    private fun isCurrencyDataFresh(savedTimestamp: Long, currentTimestamp: Long): Boolean {
+        return if (savedTimestamp != 0L) {
+            val currentInstant = Instant.fromEpochMilliseconds(currentTimestamp)
+            val savedInstant = Instant.fromEpochMilliseconds(savedTimestamp)
 
-            val currentDay = currentDateTime.date.toEpochDays()
-            val savedDay = savedDateTime.date.toEpochDays()
+            val currentDateTime = currentInstant
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+            val savedDateTime = savedInstant
+                .toLocalDateTime(TimeZone.currentSystemDefault())
 
-            val difference = currentDay - savedDay
+            val daysDifference = currentDateTime.date.dayOfYear - savedDateTime.date.dayOfYear
 
-            difference <= 1
+            daysDifference < 1
         }
         else {
-            return false
+            false
         }
     }
 }

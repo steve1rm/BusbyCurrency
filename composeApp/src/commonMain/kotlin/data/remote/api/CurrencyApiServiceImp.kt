@@ -75,11 +75,11 @@ class CurrencyApiServiceImp(
                         listOfAvailableCurrencyCode.contains(currencyModel.code)
                     }
 
+                /** Data from the BE and when it was last updated */
                 val lastUpdated = apiResponse.meta.lastUpdatedAt
 
                 /** Persist the time stamp form the BE */
                 preferenceRepository.saveLastUpdated(lastUpdated)
-
                 RequestState.Success(data = listOfAvailableCurreny)
             }
             else {
