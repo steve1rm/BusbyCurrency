@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import busbycurrency.composeapp.generated.resources.Res
 import busbycurrency.composeapp.generated.resources.exchange_illustration
 import busbycurrency.composeapp.generated.resources.refresh_ic
+import busbycurrency.composeapp.generated.resources.start_refresh
 import domain.model.RateStatus
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,7 +37,7 @@ import ui.theme.staleColor
 fun HomeHeader(
     modifier: Modifier = Modifier,
     ratesStatus: RateStatus,
-    onRateRefresh: () -> Unit
+    onRateRefreshClicked: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -47,7 +48,7 @@ fun HomeHeader(
     ) {
         RatesStatus(
             ratesStatus = ratesStatus,
-            onRateRefresh = onRateRefresh)
+            onRateRefreshClicked = onRateRefreshClicked)
 
        /* Row(
             modifier = Modifier.fillMaxWidth(),
@@ -81,7 +82,7 @@ fun HomeHeader(
 @Composable
 fun RatesStatus(
     ratesStatus: RateStatus,
-    onRateRefresh: () -> Unit
+    onRateRefreshClicked: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -112,12 +113,12 @@ fun RatesStatus(
 
         if(ratesStatus == RateStatus.Stale) {
             IconButton(
-                onClick = onRateRefresh
+                onClick = onRateRefreshClicked
             ) {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = painterResource(Res.drawable.refresh_ic),
-                    contentDescription = "Refresh the rates",
+                    contentDescription = stringResource(Res.string.start_refresh),
                     tint = staleColor
                 )
             }
@@ -132,7 +133,7 @@ fun PreviewHomeHeader() {
     MaterialTheme {
         HomeHeader(
             ratesStatus = RateStatus.Fresh,
-            onRateRefresh = {}
+            onRateRefreshClicked = {}
         )
     }
 }

@@ -2,4 +2,5 @@
     <string name="rates">Rates</string>
     <string name="fresh_rates">Fresh Rates</string>
     <string name="stale">Rates are not fresh</string>
+    <string name="start_refresh">Start refreshing rates</string>
 </resources>
