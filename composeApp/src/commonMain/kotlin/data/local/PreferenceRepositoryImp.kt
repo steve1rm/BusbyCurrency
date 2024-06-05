@@ -37,7 +37,7 @@ class PreferenceRepositoryImp(
 
         val currentTimestamp = Clock.System.now().toEpochMilliseconds()
         val isDataStillFresh = isCurrencyDataFresh(timeStampFromEndPoint, currentTimestamp)
-        
+
         /** Send update to be observed that a new time stamp has been retrieved */
         currencyRateChannel.send(isDataStillFresh)
     }
