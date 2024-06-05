@@ -22,7 +22,7 @@ class HomeViewModel(
         private set
 
     init {
-        preferenceRepository.eventChannel.onEach { isFresh ->
+        preferenceRepository.currenyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
                 println(RateStatus.Fresh.name)
                 RateStatus.Fresh

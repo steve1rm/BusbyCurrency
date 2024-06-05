@@ -9,7 +9,6 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import domain.PreferenceRepository
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -26,6 +25,9 @@ class PreferenceRepositoryImp(
 
     private val flowSettings: FlowSettings = (settings as ObservableSettings).toFlowSettings()
 
+    private val currencyRateChannel = Channel<Boolean>()
+    override val currenyRateFlow = currencyRateChannel.receiveAsFlow()
+
     override suspend fun saveLastUpdated(lastUpdated: String) {
         val timeStampFromEndPoint = Instant.parse(lastUpdated).toEpochMilliseconds()
 
@@ -35,31 +37,10 @@ class PreferenceRepositoryImp(
 
         val currentTimestamp = Clock.System.now().toEpochMilliseconds()
         val isDataStillFresh = isCurrencyDataFresh(timeStampFromEndPoint, currentTimestamp)
-        channel.send(isDataStillFresh)
-
-        delay(2_000L)
-        println("###### SEND")
-        channel.send(false)
-
-        delay(2_000L)
-        println("###### SEND")
-        channel.send(true)
-
-        delay(2_000L)
-        println("###### SEND")
-        channel.send(false)
-
-        delay(2_000L)
-        println("###### SEND")
-        channel.send(true)
-
-        delay(2_000L)
-        println("###### SEND")
-        channel.send(false)
+        
+        /** Send update to be observed that a new time stamp has been retrieved */
+        currencyRateChannel.send(isDataStillFresh)
     }
-
-    private val channel = Channel<Boolean>()
-    override val eventChannel = channel.receiveAsFlow()
 
     override suspend fun isDataFresh(currentTimestamp: Long): Boolean {
         val savedTimestamp = flowSettings.getLong(
