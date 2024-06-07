@@ -9,7 +9,6 @@ import presentation.home.HomeViewModel
 
 object HomeScreenRoot : Screen {
 
-
     @Composable
     override fun Content() {
         val homeViewModel = getScreenModel<HomeViewModel>()
