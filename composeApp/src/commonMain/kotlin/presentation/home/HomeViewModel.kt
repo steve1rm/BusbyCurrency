@@ -1,5 +1,7 @@
 package presentation.home
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +9,8 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import domain.CurrencyApiService
 import domain.PreferenceRepository
+import domain.RequestState
+import domain.model.CurrencyModel
 import domain.model.RateStatus
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -21,7 +25,19 @@ class HomeViewModel(
     var ratesStatus by mutableStateOf(RateStatus.Idle)
         private set
 
+    var sourceCurrency = mutableStateOf<RequestState<CurrencyModel>>(RequestState.Idle)
+        private set
+
+    var targetCurrency: State<RequestState<CurrencyModel>> = mutableStateOf(RequestState.Idle)
+        private set
+
+    private var _source = mutableStateOf(RequestState.Idle)
+    val source: State<RequestState<CurrencyModel>> = _source
+
+
+
     init {
+
         preferenceRepository.currenyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
                 println(RateStatus.Fresh.name)
