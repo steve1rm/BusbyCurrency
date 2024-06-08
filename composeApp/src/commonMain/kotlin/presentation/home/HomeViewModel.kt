@@ -11,8 +11,10 @@ import domain.CurrencyApiService
 import domain.MongoRepository
 import domain.PreferenceRepository
 import domain.RequestState
+import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.RateStatus
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,10 +31,10 @@ class HomeViewModel(
     var ratesStatus by mutableStateOf(RateStatus.Idle)
         private set
 
-    var sourceCurrency = mutableStateOf<RequestState<CurrencyModel>>(RequestState.Idle)
+    var sourceCurrency by mutableStateOf<RequestState<CurrencyModel>>(RequestState.Idle)
         private set
 
-    var targetCurrency: State<RequestState<CurrencyModel>> = mutableStateOf(RequestState.Idle)
+    var targetCurrency by mutableStateOf<RequestState<CurrencyModel>>(RequestState.Idle)
         private set
 
     var allCurrencies = mutableStateListOf(CurrencyModel())
@@ -41,16 +43,18 @@ class HomeViewModel(
     init {
         preferenceRepository.currencyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
-                println(RateStatus.Fresh.name)
+                println("HomeViewModel currencyRateFlow observed ${RateStatus.Fresh.name}")
                 RateStatus.Fresh
             }
             else {
-                println(RateStatus.Stale.name)
+                println("HomeViewModel currencyRateFlow observed ${RateStatus.Stale.name}")
                 RateStatus.Stale
             }
         }.launchIn(screenModelScope)
 
         fetchNewRates()
+        readSourceCurrency()
+        readTargetCurrency()
     }
 
     fun homeEvents(events: HomeEvents) {
@@ -62,8 +66,37 @@ class HomeViewModel(
     }
 
     private fun readSourceCurrency() {
-        preferenceRepository.readSourceCurrencyCode()
-            .launchIn(screenModelScope)
+        screenModelScope.launch {
+            preferenceRepository.readSourceCurrencyCode().collectLatest { currencyCode ->
+                val selectedCurrency = allCurrencies.find { currencyModel ->
+                    currencyCode.name == currencyModel.code
+                }
+
+                sourceCurrency = if(selectedCurrency != null) {
+                    RequestState.Success(data = selectedCurrency)
+                }
+                else {
+                    RequestState.Failure(message = "Could not find the selected country currency for source")
+                }
+            }
+        }
+    }
+
+    private fun readTargetCurrency() {
+        screenModelScope.launch {
+            preferenceRepository.readTargetCurrencyCode().collectLatest { currencyCode ->
+                val selectedCurrency = allCurrencies.find { currencyModel ->
+                    currencyModel.code == currencyCode.name
+                }
+
+                targetCurrency = if(selectedCurrency != null) {
+                    RequestState.Success(data = selectedCurrency)
+                }
+                else {
+                    RequestState.Failure(message = "Could not find the selected country currency for target")
+                }
+            }
+        }
     }
 
     private fun fetchNewRates() {
