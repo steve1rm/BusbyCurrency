@@ -1,17 +1,19 @@
 package presentation.home
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import domain.CurrencyApiService
+import domain.MongoRepository
 import domain.PreferenceRepository
 import domain.RequestState
 import domain.model.CurrencyModel
 import domain.model.RateStatus
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -19,7 +21,8 @@ import kotlinx.datetime.Clock
 
 class HomeViewModel(
     private val preferenceRepository: PreferenceRepository,
-    private val currencyApiService: CurrencyApiService
+    private val currencyApiService: CurrencyApiService,
+    private val mongoRepository: MongoRepository
 ) : ScreenModel {
 
     var ratesStatus by mutableStateOf(RateStatus.Idle)
@@ -31,13 +34,10 @@ class HomeViewModel(
     var targetCurrency: State<RequestState<CurrencyModel>> = mutableStateOf(RequestState.Idle)
         private set
 
-    private var _source = mutableStateOf(RequestState.Idle)
-    val source: State<RequestState<CurrencyModel>> = _source
-
-
+    var allCurrencies = mutableStateListOf(CurrencyModel())
+        private set
 
     init {
-
         preferenceRepository.currenyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
                 println(RateStatus.Fresh.name)
@@ -63,8 +63,30 @@ class HomeViewModel(
     private fun fetchNewRates() {
         screenModelScope.launch {
             try {
-                val results = currencyApiService.getLatestExchangeRates()
-//                println(results.isSuccess())
+                val localCache = mongoRepository.readCurrencyData().first()
+                if(localCache.isSuccess()) {
+                    if(localCache.getSuccessData().isNullOrEmpty()) {
+                        println("HomeViewModel: DATABASE IS FULL")
+                        localCache.getSuccessData()?.let { listOfCurrencies ->
+                            allCurrencies.addAll(listOfCurrencies)
+                        }
+
+                        if(!preferenceRepository.isDataFresh(Clock.System.now().toEpochMilliseconds())) {
+                            cacheCurrencyData()
+                        }
+                        else {
+                            println("HomeViewModel: DATA IS FRESH")
+                        }
+                    }
+                    else {
+                        println("HomeViewModel: DATABASE NEEDS DATA")
+                        cacheCurrencyData()
+                    }
+                }
+                else if(localCache.isFailure()){
+                    println("HomeViewModel: ERROR READING LOCAL DATABASE ${localCache.getFailureMessage()}")
+                }
+                getSaveRateStatus()
             }
             catch(exception: Exception) {
                 println(exception.message)
@@ -72,11 +94,30 @@ class HomeViewModel(
         }
     }
 
-    override fun onDispose() {
-        super.onDispose()
-        println("onDispose for ${HomeViewModel::class.simpleName}")
+    private suspend fun cacheCurrencyData() {
+        val fetchData = currencyApiService.getLatestExchangeRates()
+
+        if (fetchData.isSuccess()) {
+            mongoRepository.cleanUp()
+
+            fetchData.getSuccessData()?.map { currencyModel ->
+                println("HomeViewModel: ADDING ${currencyModel.code}")
+                mongoRepository.insertCurrencyData(currencyModel)
+            }
+            println("HomeViewModel: UPDATING allCurrencies")
+            fetchData.getSuccessData()?.let { listOfCurrencyModel ->
+                allCurrencies.addAll(listOfCurrencyModel)
+            }
+        }
+        else if(fetchData.isFailure()) {
+            println("HomeViewModel: FETCHING FAILED ${fetchData.getFailureMessage() ?: ""}")
+        }
     }
 
+    override fun onDispose() {
+        super.onDispose()
+        println("ON_DISPOSE for ${HomeViewModel::class.simpleName}")
+    }
 
     private fun getSaveRateStatus() {
         screenModelScope.launch {

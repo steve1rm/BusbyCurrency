@@ -45,7 +45,7 @@ fun PreviewHomeScreen() {
         HomeScreen(
             rateStatus = RateStatus.Stale,
             onHomeEvents = {},
-            source = RequestState.Success(CurrencyModel("", 0.0)),
+            source = RequestState.Success(CurrencyModel()),
             target = RequestState.Failure("Failed")
         )
     }

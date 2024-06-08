@@ -1,14 +1,16 @@
 package di
 
 import com.russhwolf.settings.Settings
+import data.local.MongoRepositoryImp
+import data.local.PreferenceRepositoryImp
 import data.remote.api.CurrencyApiServiceImp
 import domain.CurrencyApiService
+import domain.MongoRepository
 import domain.PreferenceRepository
+import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import data.local.PreferenceRepositoryImp
-import org.koin.core.context.startKoin
 
 val appModule = module {
 
@@ -17,6 +19,8 @@ val appModule = module {
     singleOf(::CurrencyApiServiceImp).bind<CurrencyApiService>()
 
     singleOf(::PreferenceRepositoryImp).bind<PreferenceRepository>()
+
+    singleOf(::MongoRepositoryImp).bind<MongoRepository>()
 }
 
 fun initializeKoin() {

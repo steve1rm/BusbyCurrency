@@ -279,8 +279,8 @@ fun PreviewHomeHeader() {
             ratesStatus = RateStatus.Fresh,
             onRateRefreshClicked = {},
             onSwitchClicked = { },
-            source = RequestState.Success(CurrencyModel("", 0.0)),
-            target = RequestState.Success(CurrencyModel("", 0.0)),
+            source = RequestState.Success(CurrencyModel()),
+            target = RequestState.Success(CurrencyModel()),
             amount = 0.0,
             onAmountChange = {}
         )
