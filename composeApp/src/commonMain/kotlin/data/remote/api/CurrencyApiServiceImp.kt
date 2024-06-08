@@ -53,7 +53,6 @@ class CurrencyApiServiceImp(
 
     override suspend fun getLatestExchangeRates(): RequestState<List<CurrencyModel>> {
         return try {
-
             val response = httpClient.get(ENDPOINT)
 
             if(response.status.value == 200) {
@@ -70,7 +69,7 @@ class CurrencyApiServiceImp(
                             .contains(currencyKey)
                     }
 
-                val listOfAvailableCurreny = apiResponse.data.values
+                val listOfAvailableCurrency = apiResponse.data.values
                     .filter { currencyModel ->
                         listOfAvailableCurrencyCode.contains(currencyModel.code)
                     }
@@ -80,7 +79,7 @@ class CurrencyApiServiceImp(
 
                 /** Persist the time stamp form the BE */
                 preferenceRepository.saveLastUpdated(lastUpdated)
-                RequestState.Success(data = listOfAvailableCurreny)
+                RequestState.Success(data = listOfAvailableCurrency)
             }
             else {
                 RequestState.Failure(message = "HTTP Error Code: ${response.status}")

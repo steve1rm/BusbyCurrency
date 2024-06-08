@@ -16,6 +16,7 @@ import domain.model.RateStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -38,7 +39,7 @@ class HomeViewModel(
         private set
 
     init {
-        preferenceRepository.currenyRateFlow.onEach { isFresh ->
+        preferenceRepository.currencyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
                 println(RateStatus.Fresh.name)
                 RateStatus.Fresh
@@ -60,17 +61,26 @@ class HomeViewModel(
         }
     }
 
+    private fun readSourceCurrency() {
+        preferenceRepository.readSourceCurrencyCode()
+            .launchIn(screenModelScope)
+    }
+
     private fun fetchNewRates() {
         screenModelScope.launch {
             try {
+                /** terminal operator to get the first emitted local cache */
                 val localCache = mongoRepository.readCurrencyData().first()
+
                 if(localCache.isSuccess()) {
-                    if(localCache.getSuccessData().isNullOrEmpty()) {
+                    if(!localCache.getSuccessData().isNullOrEmpty()) {
                         println("HomeViewModel: DATABASE IS FULL")
+                        /** We should be null here as the check for isNullOrEmpty */
                         localCache.getSuccessData()?.let { listOfCurrencies ->
                             allCurrencies.addAll(listOfCurrencies)
                         }
 
+                        /** Check if the data we are getting from the local cache is fresh */
                         if(!preferenceRepository.isDataFresh(Clock.System.now().toEpochMilliseconds())) {
                             cacheCurrencyData()
                         }
@@ -95,18 +105,25 @@ class HomeViewModel(
     }
 
     private suspend fun cacheCurrencyData() {
+        /** Fetch latest data from EP */
         val fetchData = currencyApiService.getLatestExchangeRates()
 
         if (fetchData.isSuccess()) {
+            /** Clean up the cache before inputting duplicated data */
             mongoRepository.cleanUp()
 
-            fetchData.getSuccessData()?.map { currencyModel ->
-                println("HomeViewModel: ADDING ${currencyModel.code}")
-                mongoRepository.insertCurrencyData(currencyModel)
-            }
-            println("HomeViewModel: UPDATING allCurrencies")
-            fetchData.getSuccessData()?.let { listOfCurrencyModel ->
-                allCurrencies.addAll(listOfCurrencyModel)
+            if (fetchData.getSuccessData() != null) {
+                /** We should always be non-null here - complex expression cannot be evaluated
+                 *  could use !! instead of ? */
+                fetchData.getSuccessData()?.forEach { currencyModel ->
+                    println("HomeViewModel: ADDING TO CACHE ${currencyModel.code}")
+                    mongoRepository.insertCurrencyData(currencyModel)
+                }
+                println("HomeViewModel: UPDATING allCurrencies")
+                fetchData.getSuccessData()?.let { listOfCurrencyModel ->
+                    allCurrencies.clear()
+                    allCurrencies.addAll(listOfCurrencyModel)
+                }
             }
         }
         else if(fetchData.isFailure()) {
