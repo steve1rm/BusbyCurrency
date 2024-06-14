@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package presentation.components
 
 import androidx.compose.animation.animateContentSize
@@ -230,41 +228,39 @@ fun RowScope.CurrencyView(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        if(requestState.isSuccess()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(size = 8.dp))
-                    .background(Color.White.copy(alpha = 0.6f))
-                    .height(54.dp)
-                    .clickable(
-                        onClick = onCurrencyClicked
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    contentDescription = "Click to select currency",
-                    painter = painterResource(getCurrencyResFromCode(requestState.getSuccessData()).first),
-                    tint = Color.Unspecified
-                )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(size = 8.dp))
+                .background(Color.White.copy(alpha = 0.5f))
+                .height(54.dp)
+                .clickable(
+                    onClick = onCurrencyClicked
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                contentDescription = "Click to select currency",
+                painter = painterResource(getCurrencyResFromCode(requestState.getSuccessData()).first),
+                tint = Color.Unspecified
+            )
 
-                Text(
-                    text = getCurrencyResFromCode(requestState.getSuccessData()).second,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                    color = Color.White)
-            }
+            Spacer(modifier = Modifier.width(4.dp))
 
+            Text(
+                text = getCurrencyResFromCode(requestState.getSuccessData()).second,
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                color = Color.White)
         }
     }
-
 }
 
 private fun getCurrencyResFromCode(currencyModel: CurrencyModel?): Pair<DrawableResource, String> {
     return if(currencyModel != null) {
-        CurrencyCode.valueOf(currencyModel.code).flag to CurrencyCode.valueOf(currencyModel.code).country
+        CurrencyCode.valueOf(currencyModel.code).flag to CurrencyCode.valueOf(currencyModel.code).name
     }
     else {
         Res.drawable.compose_multiplatform to "UNK"
@@ -272,7 +268,7 @@ private fun getCurrencyResFromCode(currencyModel: CurrencyModel?): Pair<Drawable
 }
 
 @Composable
-@Preview
+@Preview()
 fun PreviewHomeHeader() {
     MaterialTheme {
         HomeHeader(

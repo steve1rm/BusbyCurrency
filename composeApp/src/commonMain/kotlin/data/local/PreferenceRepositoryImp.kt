@@ -27,7 +27,7 @@ class PreferenceRepositoryImp(
         private const val SOURCE_KEY = "source_key"
         private const val TARGET_KEY = "target_key"
 
-        private val DEFAULT_SOURCE_CURRENCY = CurrencyCode.THB.name
+        private val DEFAULT_SOURCE_CURRENCY = CurrencyCode.USD.name
         private val DEFAULT_TARGET_CURRENCY = CurrencyCode.GBP.name
     }
 
