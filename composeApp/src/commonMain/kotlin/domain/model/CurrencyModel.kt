@@ -12,4 +12,6 @@ open class CurrencyModel : RealmObject {
     var _id: ObjectId = ObjectId()
     var code: String = ""
     var value: Double = 0.0
+
+    companion object
 }

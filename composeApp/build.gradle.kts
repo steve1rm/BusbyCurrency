@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.realm.plugin)
- // kotlin 2.0   alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
