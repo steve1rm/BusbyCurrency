@@ -183,7 +183,7 @@ fun CurrencyInput(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         CurrencyView(
             placeholder = "From",
@@ -191,7 +191,7 @@ fun CurrencyInput(
             onCurrencyClicked = {}
         )
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         IconButton(
             onClick = onSwitchClicked
@@ -201,6 +201,8 @@ fun CurrencyInput(
                 contentDescription = "Switch currencies",
                 tint = Color.White)
         }
+
+        Spacer(modifier = Modifier.width(8.dp))
 
         CurrencyView(
             placeholder = "To",
@@ -232,7 +234,7 @@ fun RowScope.CurrencyView(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(size = 8.dp))
-                .background(Color.White.copy(alpha = 0.5f))
+                .background(Color.White.copy(alpha = 0.05f))
                 .height(54.dp)
                 .clickable(
                     onClick = onCurrencyClicked
@@ -247,7 +249,7 @@ fun RowScope.CurrencyView(
                 tint = Color.Unspecified
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = getCurrencyResFromCode(requestState.getSuccessData()).second,
