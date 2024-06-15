@@ -183,7 +183,7 @@ fun CurrencyInput(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Bottom,
     ) {
         CurrencyView(
             placeholder = "From",
@@ -270,7 +270,7 @@ private fun getCurrencyResFromCode(currencyModel: CurrencyModel?): Pair<Drawable
 }
 
 @Composable
-@Preview()
+@Preview
 fun PreviewHomeHeader() {
     MaterialTheme {
         HomeHeader(
