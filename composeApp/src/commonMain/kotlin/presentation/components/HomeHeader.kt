@@ -46,6 +46,7 @@ import busbycurrency.composeapp.generated.resources.exchange_illustration
 import busbycurrency.composeapp.generated.resources.refresh_ic
 import busbycurrency.composeapp.generated.resources.start_refresh
 import busbycurrency.composeapp.generated.resources.switch_ic
+import domain.DisplayResult
 import domain.RequestState
 import domain.model.CurrencyCode
 import domain.model.CurrencyModel
@@ -264,20 +265,27 @@ fun RowScope.CurrencyView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
-                modifier = Modifier.size(24.dp),
-                contentDescription = "Click to select currency",
-                painter = painterResource(getCurrencyResFromCode(requestState.getSuccessData()).first),
-                tint = Color.Unspecified
+
+            requestState.DisplayResult(
+                onSuccess = { data ->
+                    data?.let {
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = "Click to select currency",
+                            painter = painterResource(CurrencyCode.valueOf(it.code).flag),
+                            tint = Color.Unspecified
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = CurrencyCode.valueOf(it.code).name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            color = Color.White)
+                    }
+                }
             )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = getCurrencyResFromCode(requestState.getSuccessData()).second,
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                color = Color.White)
         }
     }
 }

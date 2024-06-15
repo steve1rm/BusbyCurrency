@@ -67,17 +67,12 @@ class HomeViewModel(
         }
     }
 
-
     private fun switchCurrency() {
-        screenModelScope.launch {
-            delay(500)
+        val tempSourceCurrency = sourceCurrency
+        val tempTargetCurrency = targetCurrency
 
-            val tempSourceCurrency = sourceCurrency
-            val tempTargetCurrency = targetCurrency
-
-            sourceCurrency = tempTargetCurrency
-            targetCurrency = tempSourceCurrency
-        }
+        sourceCurrency = tempTargetCurrency
+        targetCurrency = tempSourceCurrency
     }
 
     private fun readSourceCurrency() {
