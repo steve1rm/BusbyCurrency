@@ -1,6 +1,8 @@
 package presentation.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,10 +27,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -181,6 +188,14 @@ fun CurrencyInput(
     target: RequestState<CurrencyModel>,
     onSwitchClicked: () -> Unit
 ) {
+    var animationStarted by remember {
+        mutableStateOf(false)
+    }
+    val animatedRotation by animateFloatAsState(
+        targetValue = if(animationStarted) 180f else 0f,
+        animationSpec = tween(durationMillis = 500)
+    )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
@@ -194,7 +209,14 @@ fun CurrencyInput(
         Spacer(modifier = Modifier.width(8.dp))
 
         IconButton(
-            onClick = onSwitchClicked
+            modifier = Modifier
+                .graphicsLayer {
+                    this.rotationY = animatedRotation
+                },
+            onClick = {
+                animationStarted = !animationStarted
+                onSwitchClicked()
+            }
         ) {
             Icon(
                 painter = painterResource(Res.drawable.switch_ic),
@@ -225,7 +247,7 @@ fun RowScope.CurrencyView(
         Text(
             modifier = Modifier.padding(start = 12.dp),
             text = placeholder,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             color = Color.White)
 
         Spacer(modifier = Modifier.height(4.dp))

@@ -30,7 +30,9 @@ fun HomeScreen(
         onRateRefreshClicked = {
             onHomeEvents(HomeEvents.RefreshRates)
         },
-        onSwitchClicked = {},
+        onSwitchClicked = {
+            onHomeEvents(HomeEvents.SwitchCurrency)
+        },
         amount = 0.0,
         onAmountChange = { newValue ->
             amount = newValue

@@ -1,9 +1,9 @@
 package presentation.home
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -11,14 +11,13 @@ import domain.CurrencyApiService
 import domain.MongoRepository
 import domain.PreferenceRepository
 import domain.RequestState
-import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.RateStatus
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
@@ -62,6 +61,22 @@ class HomeViewModel(
             HomeEvents.RefreshRates -> {
                 fetchNewRates()
             }
+            HomeEvents.SwitchCurrency -> {
+                switchCurrency()
+            }
+        }
+    }
+
+
+    private fun switchCurrency() {
+        screenModelScope.launch {
+            delay(500)
+
+            val tempSourceCurrency = sourceCurrency
+            val tempTargetCurrency = targetCurrency
+
+            sourceCurrency = tempTargetCurrency
+            targetCurrency = tempSourceCurrency
         }
     }
 
