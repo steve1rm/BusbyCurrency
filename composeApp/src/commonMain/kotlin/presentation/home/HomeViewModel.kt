@@ -14,6 +14,9 @@ import domain.RequestState
 import domain.model.CurrencyModel
 import domain.model.RateStatus
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -36,10 +39,11 @@ class HomeViewModel(
     var targetCurrency by mutableStateOf<RequestState<CurrencyModel>>(RequestState.Idle)
         private set
 
-    var allCurrencies = mutableStateListOf(CurrencyModel())
+    var allCurrencies = mutableStateListOf<CurrencyModel>()
         private set
-
+    
     init {
+        /** Observe the rates time a request is made */
         preferenceRepository.currencyRateFlow.onEach { isFresh ->
             ratesStatus = if(isFresh) {
                 println("HomeViewModel currencyRateFlow observed ${RateStatus.Fresh.name}")
@@ -48,6 +52,17 @@ class HomeViewModel(
             else {
                 println("HomeViewModel currencyRateFlow observed ${RateStatus.Stale.name}")
                 RateStatus.Stale
+            }
+        }.launchIn(screenModelScope)
+
+        mongoRepository.readCurrencyData().onEach { listOfCurrencies ->
+            println("HomeViewModel DB Local observed ${listOfCurrencies.getSuccessData()?.count()}")
+            allCurrencies.clear()
+
+            if(listOfCurrencies.getSuccessData()?.isNotEmpty() == true) {
+                listOfCurrencies.getSuccessData()?.let { currencies ->
+                    allCurrencies.addAll(currencies)
+                }
             }
         }.launchIn(screenModelScope)
 
@@ -118,7 +133,7 @@ class HomeViewModel(
                 if(localCache.isSuccess()) {
                     if(!localCache.getSuccessData().isNullOrEmpty()) {
                         println("HomeViewModel: DATABASE IS FULL")
-                        /** We should be null here as the check for isNullOrEmpty */
+                        /** We shouldn't be null here as the check for isNullOrEmpty */
                         localCache.getSuccessData()?.let { listOfCurrencies ->
                             allCurrencies.addAll(listOfCurrencies)
                         }
@@ -139,6 +154,7 @@ class HomeViewModel(
                 else if(localCache.isFailure()){
                     println("HomeViewModel: ERROR READING LOCAL DATABASE ${localCache.getFailureMessage()}")
                 }
+
                 getSaveRateStatus()
             }
             catch(exception: Exception) {
@@ -163,10 +179,12 @@ class HomeViewModel(
                     mongoRepository.insertCurrencyData(currencyModel)
                 }
                 println("HomeViewModel: UPDATING allCurrencies")
-                fetchData.getSuccessData()?.let { listOfCurrencyModel ->
+                /** TODO Should be getting the data from the DB and not from the Network
+                 *  Change to get this from the DB by observing changes to it */
+              /*  fetchData.getSuccessData()?.let { listOfCurrencyModel ->
                     allCurrencies.clear()
                     allCurrencies.addAll(listOfCurrencyModel)
-                }
+                }*/
             }
         }
         else if(fetchData.isFailure()) {

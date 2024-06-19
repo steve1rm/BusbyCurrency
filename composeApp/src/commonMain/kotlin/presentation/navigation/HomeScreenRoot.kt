@@ -12,9 +12,11 @@ object HomeScreenRoot : Screen {
     @Composable
     override fun Content() {
         val homeViewModel = getScreenModel<HomeViewModel>()
+
         val ratesState = homeViewModel.ratesStatus
         val source = homeViewModel.sourceCurrency
         val target = homeViewModel.targetCurrency
+        val allCurrencies = homeViewModel.allCurrencies
 
         HomeScreen(
             onHomeEvents = { event ->
@@ -22,7 +24,8 @@ object HomeScreenRoot : Screen {
             },
             rateStatus = ratesState,
             source = source,
-            target = target
+            target = target,
+            allCurrencies = allCurrencies
         )
     }
 }
