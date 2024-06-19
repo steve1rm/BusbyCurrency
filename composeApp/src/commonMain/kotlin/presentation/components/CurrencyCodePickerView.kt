@@ -95,9 +95,9 @@ fun CurrencyCodePickerView(
                 fontWeight = FontWeight.Bold,
                 color = textColor
             )
-
-            CurrencyCodeSelector(isSelected = isSelected)
         }
+
+        CurrencyCodeSelector(isSelected = isSelected)
     }
 }
 

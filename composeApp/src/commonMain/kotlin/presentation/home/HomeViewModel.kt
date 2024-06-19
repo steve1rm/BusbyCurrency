@@ -41,7 +41,7 @@ class HomeViewModel(
 
     var allCurrencies = mutableStateListOf<CurrencyModel>()
         private set
-    
+
     init {
         /** Observe the rates time a request is made */
         preferenceRepository.currencyRateFlow.onEach { isFresh ->
@@ -135,6 +135,7 @@ class HomeViewModel(
                         println("HomeViewModel: DATABASE IS FULL")
                         /** We shouldn't be null here as the check for isNullOrEmpty */
                         localCache.getSuccessData()?.let { listOfCurrencies ->
+                            allCurrencies.clear()
                             allCurrencies.addAll(listOfCurrencies)
                         }
 

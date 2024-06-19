@@ -115,16 +115,16 @@ fun CurrencyPickerDialog(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 AnimatedContent(
-                    targetState = allCurrencies
+                    targetState = listOfCurrency
                 ) {
-                    if (allCurrencies.isNotEmpty()) {
+                    if (listOfCurrency.isNotEmpty()) {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(250.dp)
                         ) {
                             items(
-                                items = allCurrencies,
+                                items = listOfCurrency,
                                 key = { currencyModel ->
                                     currencyModel._id.toHexString()
                                 }
