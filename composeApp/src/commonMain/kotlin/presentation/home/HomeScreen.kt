@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import domain.RequestState
+import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.CurrencyType
 import domain.model.RateStatus
@@ -33,17 +34,27 @@ fun HomeScreen(
     }
 
     var isDialogOpened by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
-    if(isDialogOpened) {
+    if(isDialogOpened&& selectedCurrencyType != CurrencyType.None) {
         CurrencyPickerDialog(
             listOfCurrency = allCurrencies,
             currencyType = selectedCurrencyType,
-            onPositiveClicked = {
+            onConfirmedClicked = { currencyCode ->
+                if(selectedCurrencyType is CurrencyType.Source) {
+                    onHomeEvents(HomeEvents.saveSourceCurrencyCode(currencyCode))
+                }
+                else if(selectedCurrencyType is CurrencyType.Target) {
+                    onHomeEvents(HomeEvents.saveTargetCurrencyCode(currencyCode))
+                }
+
+                selectedCurrencyType = CurrencyType.None
                 isDialogOpened = false
+
             },
             onDismiss = {
+                selectedCurrencyType = CurrencyType.None
                 isDialogOpened = false
             }
         )
@@ -62,6 +73,10 @@ fun HomeScreen(
         amount = 0.0,
         onAmountChange = { newValue ->
             amount = newValue
+        },
+        onCurrencyTypeClicked = { currencyType ->
+            isDialogOpened = true
+            selectedCurrencyType = currencyType
         }
     )
 }

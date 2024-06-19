@@ -50,6 +50,7 @@ import domain.DisplayResult
 import domain.RequestState
 import domain.model.CurrencyCode
 import domain.model.CurrencyModel
+import domain.model.CurrencyType
 import domain.model.RateStatus
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -68,7 +69,8 @@ fun HomeHeader(
     modifier: Modifier = Modifier,
     onSwitchClicked: () -> Unit,
     onRateRefreshClicked: () -> Unit,
-    onAmountChange: (amount: Double) -> Unit
+    onAmountChange: (amount: Double) -> Unit,
+    onCurrencyTypeClicked: (currencyType: CurrencyType) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -86,7 +88,8 @@ fun HomeHeader(
         CurrencyInput(
             source = source,
             target = target,
-            onSwitchClicked = onSwitchClicked
+            onSwitchClicked = onSwitchClicked,
+            onCurrencyTypeClicked = onCurrencyTypeClicked
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -187,6 +190,7 @@ fun AmountInput(
 fun CurrencyInput(
     source: RequestState<CurrencyModel>,
     target: RequestState<CurrencyModel>,
+    onCurrencyTypeClicked: (currencyType: CurrencyType) -> Unit,
     onSwitchClicked: () -> Unit
 ) {
     var animationStarted by remember {
@@ -204,7 +208,16 @@ fun CurrencyInput(
         CurrencyView(
             placeholder = "From",
             requestState = source,
-            onCurrencyClicked = {}
+            onCurrencyClicked = {
+                if(source.isSuccess()) {
+                    source.getSuccessData()?.let { currencyModel ->
+                        onCurrencyTypeClicked(
+                            CurrencyType.Source(CurrencyCode.valueOf(currencyModel.code)
+                            )
+                        )
+                    }
+                }
+            }
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -230,7 +243,17 @@ fun CurrencyInput(
         CurrencyView(
             placeholder = "To",
             requestState = target,
-            onCurrencyClicked = {}
+            onCurrencyClicked = {
+                if(target.isSuccess()) {
+                    target.getSuccessData()?.let { currencyModel ->
+                        onCurrencyTypeClicked(
+                            CurrencyType.Target(
+                                currencyCode = CurrencyCode.valueOf(currencyModel.code)
+                            )
+                        )
+                    }
+                }
+            }
         )
     }
 }
@@ -310,7 +333,8 @@ fun PreviewHomeHeader() {
             source = RequestState.Success(CurrencyModel()),
             target = RequestState.Success(CurrencyModel()),
             amount = 0.0,
-            onAmountChange = {}
+            onAmountChange = {},
+            onCurrencyTypeClicked = {}
         )
     }
 }

@@ -11,8 +11,11 @@ import domain.CurrencyApiService
 import domain.MongoRepository
 import domain.PreferenceRepository
 import domain.RequestState
+import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.RateStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -79,6 +82,12 @@ class HomeViewModel(
             HomeEvents.SwitchCurrency -> {
                 switchCurrency()
             }
+            is HomeEvents.saveSourceCurrencyCode -> {
+                saveSourceCurrencyCode(events.currencyCode.name)
+            }
+            is HomeEvents.saveTargetCurrencyCode -> {
+                saveTargetCurrencyCode(events.currencyCode.name)
+            }
         }
     }
 
@@ -88,6 +97,18 @@ class HomeViewModel(
 
         sourceCurrency = tempTargetCurrency
         targetCurrency = tempSourceCurrency
+    }
+
+    private fun saveSourceCurrencyCode(currencyCode: String) {
+        screenModelScope.launch(Dispatchers.IO) {
+            preferenceRepository.saveSourceCurrencyCode(currencyCode)
+        }
+    }
+
+    private fun saveTargetCurrencyCode(currencyCode: String) {
+        screenModelScope.launch {
+            preferenceRepository.saveTargetCurrencyCode(currencyCode)
+        }
     }
 
     private fun readSourceCurrency() {

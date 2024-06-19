@@ -38,7 +38,7 @@ import ui.theme.textColor
 fun CurrencyPickerDialog(
     listOfCurrency: List<CurrencyModel>,
     currencyType: CurrencyType,
-    onPositiveClicked: (CurrencyCode) -> Unit,
+    onConfirmedClicked: (CurrencyCode) -> Unit,
     onDismiss: () -> Unit
 ) {
     val allCurrencies = remember {
@@ -161,7 +161,7 @@ fun CurrencyPickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onPositiveClicked(selectedCurrencyCode)
+                    onConfirmedClicked(selectedCurrencyCode)
                 }) {
                 Text(
                     text = "Confirm",
@@ -178,7 +178,7 @@ fun PreviewCurrencyPickerDialog() {
     CurrencyPickerDialog(
         listOfCurrency = emptyList(),
         currencyType = CurrencyType.None,
-        onPositiveClicked = {},
+        onConfirmedClicked = {},
         onDismiss = {}
     )
 }
