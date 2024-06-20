@@ -42,7 +42,7 @@ fun CurrencyPickerDialog(
     onDismiss: () -> Unit
 ) {
     val allCurrencies = remember {
-        mutableStateListOf<CurrencyModel>().apply {
+       mutableStateListOf<CurrencyModel>().apply {
             this.addAll(listOfCurrency)
         }
     }
@@ -85,7 +85,7 @@ fun CurrencyPickerDialog(
                         }
                         else {
                             allCurrencies.clear()
-                            allCurrencies.addAll(listOfCurrency)
+                            allCurrencies.addAll(allCurrencies)
                         }
                     },
                     placeholder = {
@@ -115,16 +115,16 @@ fun CurrencyPickerDialog(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 AnimatedContent(
-                    targetState = listOfCurrency
+                    targetState = allCurrencies
                 ) {
-                    if (listOfCurrency.isNotEmpty()) {
+                    if (allCurrencies.isNotEmpty()) {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(250.dp)
                         ) {
                             items(
-                                items = listOfCurrency,
+                                items = allCurrencies,
                                 key = { currencyModel ->
                                     currencyModel._id.toHexString()
                                 }

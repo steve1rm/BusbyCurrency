@@ -49,23 +49,30 @@ fun CurrencyCodePickerView(
     onSelected: (currencyCode: CurrencyCode) -> Unit
 ) {
 
-    val saturation = remember {
-        Animatable(if (isSelected) 1f else 0f)
+    var rememberColorMatrix = remember(isSelected) {
+        ColorMatrix().apply {
+            this.setToSaturation(if (isSelected) 1f else 0f)
+        }
     }
 
     LaunchedEffect(isSelected) {
-        saturation.animateTo(if(isSelected) 1f else 0f)
-    }
+        val saturation = Animatable(
+            initialValue = 0f,
+            visibilityThreshold = if (isSelected) 1f else 0f)
 
-    val colorMatrix = remember(isSelected) {
-        ColorMatrix().apply {
-            setToSaturation(saturation.value)
+        saturation.animateTo(
+            targetValue = if (isSelected) 1f else 0f,
+            animationSpec = tween(durationMillis = 5_000)
+        )
+
+        rememberColorMatrix = ColorMatrix().apply {
+            this.setToSaturation(saturation.value)
         }
     }
 
     val animatedAlpha by animateFloatAsState(
-        targetValue = if(isSelected) 1f else 0.5f,
-        animationSpec = tween(durationMillis = 300)
+        targetValue = if (isSelected) 1f else 0.5f,
+        animationSpec = tween(durationMillis = 500)
     )
 
     Row(
@@ -84,7 +91,7 @@ fun CurrencyCodePickerView(
                 modifier = Modifier.size(24.dp),
                 painter = painterResource(currencyCode.flag),
                 contentDescription = null,
-                colorFilter = ColorFilter.colorMatrix(colorMatrix)
+                colorFilter = ColorFilter.colorMatrix(rememberColorMatrix)
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -105,7 +112,7 @@ fun CurrencyCodePickerView(
 fun CurrencyCodeSelector(isSelected: Boolean = false) {
     val animatedColor by animateColorAsState(
         targetValue = if(isSelected) primaryColor else textColor.copy(alpha = 0.1f),
-        animationSpec = tween(durationMillis = 300)
+        animationSpec = tween(durationMillis = 500)
     )
 
     Box(
