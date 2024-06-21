@@ -1,7 +1,6 @@
 package presentation.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -23,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,24 +47,14 @@ fun CurrencyCodePickerView(
     onSelected: (currencyCode: CurrencyCode) -> Unit
 ) {
 
-    var rememberColorMatrix = remember(isSelected) {
+    val saturation by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0f,
+        animationSpec = tween(durationMillis = 500)
+    )
+
+    val rememberSaturation = remember(saturation) {
         ColorMatrix().apply {
-            this.setToSaturation(if (isSelected) 1f else 0f)
-        }
-    }
-
-    LaunchedEffect(isSelected) {
-        val saturation = Animatable(
-            initialValue = 0f,
-            visibilityThreshold = if (isSelected) 1f else 0f)
-
-        saturation.animateTo(
-            targetValue = if (isSelected) 1f else 0f,
-            animationSpec = tween(durationMillis = 5_000)
-        )
-
-        rememberColorMatrix = ColorMatrix().apply {
-            this.setToSaturation(saturation.value)
+            this.setToSaturation(saturation)
         }
     }
 
@@ -91,7 +79,7 @@ fun CurrencyCodePickerView(
                 modifier = Modifier.size(24.dp),
                 painter = painterResource(currencyCode.flag),
                 contentDescription = null,
-                colorFilter = ColorFilter.colorMatrix(rememberColorMatrix)
+                colorFilter = ColorFilter.colorMatrix(rememberSaturation)
             )
 
             Spacer(modifier = Modifier.width(8.dp))
