@@ -9,19 +9,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import domain.RequestState
-import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.CurrencyType
 import domain.model.RateStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import presentation.components.CurrencyPickerDialog
+import presentation.components.HomeBody
 import presentation.components.HomeHeader
 
 @Composable
 fun HomeScreen(
     rateStatus: RateStatus,
-    source: RequestState<CurrencyModel>,
-    target: RequestState<CurrencyModel>,
+    sourceCurrency: RequestState<CurrencyModel>,
+    targetCurrency: RequestState<CurrencyModel>,
     allCurrencies: SnapshotStateList<CurrencyModel>,
     onHomeEvents: (HomeEvents) -> Unit,
 ) {
@@ -62,8 +62,8 @@ fun HomeScreen(
 
     HomeHeader(
         ratesStatus = rateStatus,
-        source = source,
-        target = target,
+        source = sourceCurrency,
+        target = targetCurrency,
         onRateRefreshClicked = {
             onHomeEvents(HomeEvents.RefreshRates)
         },
@@ -79,6 +79,12 @@ fun HomeScreen(
             selectedCurrencyType = currencyType
         }
     )
+
+    HomeBody(
+        source = sourceCurrency,
+        target = targetCurrency,
+        amount = amount
+    )
 }
 
 @Composable
@@ -88,9 +94,9 @@ fun PreviewHomeScreen() {
         HomeScreen(
             rateStatus = RateStatus.Stale,
             onHomeEvents = {},
-            source = RequestState.Success(CurrencyModel()),
+            sourceCurrency = RequestState.Success(CurrencyModel()),
             allCurrencies = SnapshotStateList(),
-            target = RequestState.Failure("Failed")
+            targetCurrency = RequestState.Failure("Failed")
         )
     }
 }

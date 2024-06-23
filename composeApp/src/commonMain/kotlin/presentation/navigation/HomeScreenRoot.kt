@@ -1,7 +1,6 @@
 package presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import presentation.home.HomeScreen
@@ -23,8 +22,8 @@ object HomeScreenRoot : Screen {
                 homeViewModel.homeEvents(event)
             },
             rateStatus = ratesState,
-            source = source,
-            target = target,
+            sourceCurrency = source,
+            targetCurrency = target,
             allCurrencies = allCurrencies
         )
     }
