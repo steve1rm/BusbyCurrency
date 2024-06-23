@@ -1,9 +1,14 @@
 package presentation.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.FontFamily
+import busbycurrency.composeapp.generated.resources.Res
+import busbycurrency.composeapp.generated.resources.bebas_neue_regular
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.Font
 
 fun displayCurrentDateTime(): String {
     val currentTimestamp = Clock.System.now()
@@ -33,6 +38,10 @@ fun displayCurrentDateTime(): String {
     return "$dayOfMonth$suffix $month, $year"
 }
 
+@Composable
+fun GetBebasFontFamily(): FontFamily {
+    return FontFamily(Font(Res.font.bebas_neue_regular))
+}
 
 private fun displayCurrentDateTimeExt(): String {
     val localTimeZone = TimeZone.currentSystemDefault()
