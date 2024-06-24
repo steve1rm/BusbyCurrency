@@ -3,7 +3,6 @@ package presentation.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,6 +51,7 @@ import domain.model.CurrencyCode
 import domain.model.CurrencyModel
 import domain.model.CurrencyType
 import domain.model.RateStatus
+import getPlatform
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -77,6 +77,7 @@ fun HomeHeader(
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
             .background(color = headerColor)
+            .padding(top = if(getPlatform().name == "Android") 0.dp else 24.dp)
             .padding(all = 24.dp),
     ) {
         RatesStatus(

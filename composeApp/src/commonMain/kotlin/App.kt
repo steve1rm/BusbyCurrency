@@ -13,8 +13,6 @@ import ui.theme.LightColors
 fun App() {
     val colors = if (!isSystemInDarkTheme()) LightColors else DarkColors
 
-    initializeKoin()
-
     MaterialTheme(colorScheme = colors) {
         Navigator(screen = HomeScreenRoot)
     }
