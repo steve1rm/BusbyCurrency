@@ -111,6 +111,7 @@ fun RatesStatus(
     ratesStatus: RateStatus,
     onRateRefreshClicked: () -> Unit
 ) {
+
     val infiniteTransition = rememberInfiniteTransition()
     val angle by infiniteTransition.animateFloat(
         initialValue = 0F,
@@ -147,7 +148,7 @@ fun RatesStatus(
             }
         }
 
-        if(ratesStatus == RateStatus.Fresh) {
+        if(ratesStatus == RateStatus.Stale) {
             IconButton(
                 onClick = onRateRefreshClicked
             ) {
@@ -155,7 +156,7 @@ fun RatesStatus(
                     modifier = Modifier
                         .size(24.dp)
                         .graphicsLayer {
-                            this.rotationZ = angle
+                            this.rotationZ = if(ratesStatus == RateStatus.Stale) angle else 0f
                         },
                     painter = painterResource(Res.drawable.refresh_ic),
                     contentDescription = stringResource(Res.string.start_refresh),
