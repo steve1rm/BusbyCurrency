@@ -1,7 +1,11 @@
 package presentation.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -107,6 +111,15 @@ fun RatesStatus(
     ratesStatus: RateStatus,
     onRateRefreshClicked: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0F,
+        targetValue = -360F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing)
+        )
+    )
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -134,12 +147,16 @@ fun RatesStatus(
             }
         }
 
-        if(ratesStatus == RateStatus.Stale) {
+        if(ratesStatus == RateStatus.Fresh) {
             IconButton(
                 onClick = onRateRefreshClicked
             ) {
                 Icon(
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            this.rotationZ = angle
+                        },
                     painter = painterResource(Res.drawable.refresh_ic),
                     contentDescription = stringResource(Res.string.start_refresh),
                     tint = staleColor
