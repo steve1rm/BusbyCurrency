@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import domain.RequestState
 import domain.model.CurrencyModel
 import presentation.utils.DoubleConverter
+import presentation.utils.GetBebasFontFamily
 import presentation.utils.calculateExchangeRate
 import presentation.utils.convert
 import ui.theme.headerColor
@@ -65,7 +66,8 @@ fun HomeBody(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = "${(animateExchangedAmount * 100).toLong() / 100.0}",
-                fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                fontSize = 60.sp,
+                fontFamily = GetBebasFontFamily(),
                 fontWeight = FontWeight.Bold,
                 color = if(isSystemInDarkTheme()) Color.White else Color.Black,
                 textAlign = TextAlign.Center
