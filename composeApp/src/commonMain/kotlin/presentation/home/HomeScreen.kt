@@ -80,7 +80,7 @@ fun HomeScreen(
             onSwitchClicked = {
                 onHomeEvents(HomeEvents.SwitchCurrency)
             },
-            amount = 0.0,
+            amount = amount,
             onAmountChange = { newValue ->
                 amount = newValue
             },
