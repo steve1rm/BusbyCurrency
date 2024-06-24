@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.realm.plugin)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.gmazzo.buildconfig)
 }
 
 kotlin {
@@ -67,6 +68,14 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
     }
+}
+
+buildConfig {
+    /* Retrieves API from local.properties */
+    val properties = org.jetbrains.kotlin.konan.properties.Properties()
+    properties.load(project.rootProject.file("local.properties").inputStream())
+
+    buildConfigField("String", "CURRENCY_API_KEY", properties.getProperty("CURRENCY_API_KEY"))
 }
 
 android {
