@@ -22,9 +22,3 @@ val appModule = module {
 
     singleOf(::MongoRepositoryImp).bind<MongoRepository>()
 }
-
-fun initializeKoin() {
-    startKoin {
-        modules(appModule, homeModule)
-    }
-}

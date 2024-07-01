@@ -33,7 +33,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
-
             implementation(libs.ktor.client.android)
         }
         commonMain.dependencies {
@@ -44,7 +43,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.ktor.client.logging)
-            implementation(libs.koin.core)
+            api(libs.koin.core)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screen.model)
             implementation(libs.voyager.transitions)
